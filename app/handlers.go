@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
+	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 )
@@ -18,7 +19,7 @@ func greet(w http.ResponseWriter, r *http.Request) {
 	// to send the response back to client, here we are writing hello world into w
 	_, err := fmt.Fprintf(w, "Hello World!\n")
 	if err != nil {
-		log.Fatal("Error while sending the response err: ", err.Error())
+		log.Fatal(err.Error())
 	}
 }
 
@@ -35,7 +36,7 @@ func getAllCustomers(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Content-Type", "application/xml")
 		err := xml.NewEncoder(w).Encode(customers)
 		if err != nil {
-			log.Fatal("Errro while sending the response, err: ", err.Error())
+			log.Fatal(err.Error())
 		}
 	} else {
 		// ading content-type
@@ -43,8 +44,16 @@ func getAllCustomers(w http.ResponseWriter, r *http.Request) {
 		// encoding our struct to json format and writing it to w which will be sent to client
 		err := json.NewEncoder(w).Encode(customers)
 		if err != nil {
-			log.Fatal("Error while sending the response err: ", err.Error())
+			log.Fatal(err.Error())
 		}
 	}
+}
+func createCustomer(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprint(w, "Post request received")
+}
 
+func getCustomer(w http.ResponseWriter, r *http.Request) {
+	// getting the request path variable value
+	vars := mux.Vars(r)
+	fmt.Fprint(w, vars["customer_id"])
 }

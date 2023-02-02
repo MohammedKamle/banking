@@ -1,7 +1,6 @@
 package app
 
 import (
-	"fmt"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
@@ -23,15 +22,4 @@ func StartApplication() {
 	if err != nil {
 		log.Fatal("Error while starting the server")
 	}
-}
-
-func createCustomer(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "Post request received")
-}
-
-func getCustomer(w http.ResponseWriter, r *http.Request) {
-	// getting the request path variable value
-	vars := mux.Vars(r)
-	fmt.Fprint(w, vars["customer_id"])
-
 }
