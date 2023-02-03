@@ -1,24 +1,26 @@
 package app
 
 import (
+	"github.com/MohammedKamle/banking/domain"
+	"github.com/MohammedKamle/banking/service"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 )
 
 func StartApplication() {
-	// defining our own multiplexer
-	//mux := http.NewServeMux()
-	r := mux.NewRouter()
+	// creating multiplexer
+	router := mux.NewRouter()
 
-	// define routes, passing reference to handler function
-	r.HandleFunc("/greet", greet).Methods(http.MethodGet)
-	r.HandleFunc("/customers", getAllCustomers).Methods(http.MethodGet)
-	// [0-9]+ is a regex which will constraint our api to work only when request path contains integers
-	r.HandleFunc("/customers/{customer_id:[0-9]+}", getCustomer).Methods(http.MethodGet)
-	r.HandleFunc("/customers", createCustomer).Methods(http.MethodPost)
+	//wiring
+	ch := CustomerHandler{
+		service.NewCustomerService(domain.NewCustomerRepositoryStub()),
+	}
+
+	router.HandleFunc("/customers", ch.getAllCustomers).Methods(http.MethodGet)
+
 	// starting server
-	err := http.ListenAndServe("localhost:8080", r)
+	err := http.ListenAndServe("localhost:8080", router)
 	if err != nil {
 		log.Fatal("Error while starting the server")
 	}
