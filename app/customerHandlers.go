@@ -2,10 +2,8 @@ package app
 
 import (
 	"encoding/json"
-	"encoding/xml"
 	"github.com/MohammedKamle/banking/service"
 	"github.com/gorilla/mux"
-	"log"
 	"net/http"
 )
 
@@ -14,24 +12,11 @@ type CustomerHandler struct {
 }
 
 func (ch *CustomerHandler) getAllCustomers(w http.ResponseWriter, r *http.Request) {
-	//
-	customers, _ := ch.service.GetAllCustomers()
-	// We will be sending response as json or xml based on what client has requested through header
-	if r.Header.Get("Content-Type") == "application/xml" {
-		// encoding to xml
-		w.Header().Add("Content-Type", "application/xml")
-		err := xml.NewEncoder(w).Encode(customers)
-		if err != nil {
-			log.Fatal(err.Error())
-		}
+	customers, err := ch.service.GetAllCustomers()
+	if err != nil {
+		writeResponse(w, err.Code, err.AsMessage())
 	} else {
-		// ading content-type
-		w.Header().Add("Content-Type", "application/json")
-		// encoding our struct to json format and writing it to w which will be sent to client
-		err := json.NewEncoder(w).Encode(customers)
-		if err != nil {
-			log.Fatal(err.Error())
-		}
+		writeResponse(w, http.StatusOK, customers)
 	}
 }
 

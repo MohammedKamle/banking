@@ -12,7 +12,7 @@ type Customer struct {
 }
 
 type CustomerRepository interface {
-	FindAll() ([]Customer, error)
+	FindAll() ([]Customer, *errs.AppError)
 	// ById function will return a pointer to customer because we want to send nil if
 	//no Customer is available against the id provided  and that is possible only with pointer
 	ById(id string) (*Customer, *errs.AppError)
