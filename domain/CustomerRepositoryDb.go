@@ -2,6 +2,7 @@ package domain
 
 import (
 	"database/sql"
+	"errors"
 	_ "github.com/go-sql-driver/mysql"
 	"log"
 	"time"
@@ -29,6 +30,23 @@ func (d CustomerRepositoryDb) FindAll() ([]Customer, error) {
 		customers = append(customers, c)
 	}
 	return customers, nil
+}
+
+func (d CustomerRepositoryDb) ById(id string) (*Customer, error) {
+	customerSql := "select customer_id, name, date_of_birth, city, zipcode, " +
+		"status from customers where customer_id = ?"
+	row := d.client.QueryRow(customerSql, id)
+	var c Customer
+	err := row.Scan(&c.Id, &c.Name, &c.City, &c.Zipcode, &c.DateOfBirth, &c.Status)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errors.New("customer not found")
+		} else {
+			log.Println("Error while scanning customer " + err.Error())
+			return nil, errors.New("unexpected database error")
+		}
+	}
+	return &c, nil
 }
 
 func NewCustomerRepositoryDb() CustomerRepositoryDb {
