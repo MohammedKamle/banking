@@ -2,12 +2,14 @@ package domain
 
 import "github.com/MohammedKamle/banking/errs"
 
+// db is used as our struct has key Id and database has customer_id, so sqlx will throw error while scanning for
+// Id and DateOfBirth
 type Customer struct {
-	Id          string
+	Id          string `db:"customer_id"`
 	Name        string
 	City        string
 	Zipcode     string
-	DateOfBirth string
+	DateOfBirth string `db:"date_of_birth"`
 	Status      string
 }
 
