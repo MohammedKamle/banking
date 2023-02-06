@@ -14,49 +14,32 @@ type CustomerRepositoryDb struct {
 }
 
 func (d CustomerRepositoryDb) FindAll(status string) ([]Customer, *errs.AppError) {
-	//var rows *sql.Rows
 	var err error
 	customers := make([]Customer, 0)
-
 	if status == "" {
-		findAllSql := "select customer_id, name, date_of_birth, city, zipcode, status from customers"
+		findAllSql := "select customer_id, name, date_of_birth, city, " +
+			"zipcode, status from customers"
+		// Select method of sqlx will run the query and store all rows of customers table automatically
+		// in customers map, in other words we don't need to individually scan all the rows and append
+		// each of them one by one as we did earlier
 		err = d.client.Select(&customers, findAllSql)
 	} else {
-		findAllSql := "select customer_id, name, date_of_birth, city, zipcode, status from customers where status = ?"
+		findAllSql := "select customer_id, name, date_of_birth, city, zipcode, status" +
+			" from customers where status = ?"
 		err = d.client.Select(&customers, findAllSql, status)
 	}
 	if err != nil {
 		logger.Error("Error while querying customer table " + err.Error())
 		return nil, errs.NewUnexpectedError("unexpected database error")
-
 	}
-	// StructScan will scan all the rows which are returned and store them in []Customer
-	//err = sqlx.StructScan(rows, &customers)
-	//if err != nil {
-	//	logger.Error("Error while scanning customer " + err.Error())
-	//	return nil, errs.NewUnexpectedError("unexpected database error")
-	//}
-	// sqlx.StructScan will handle the below operation as shown above
-	//for rows.Next() {
-	//	var c Customer
-	//	err := rows.Scan(&c.Id, &c.Name, &c.City, &c.Zipcode, &c.DateOfBirth, &c.Status)
-	//	if err != nil {
-	//		logger.Error("Error while scanning customer " + err.Error())
-	//		return nil, errs.NewUnexpectedError("unexpected database error")
-	//	}
-	//	customers = append(customers, c)
-	//}
-
 	return customers, nil
 }
 
 func (d CustomerRepositoryDb) ById(id string) (*Customer, *errs.AppError) {
 	customerSql := "select customer_id, name, date_of_birth, city, zipcode, " +
 		"status from customers where customer_id = ?"
-	//row := d.client.QueryRow(customerSql, id)
 	var c Customer
 	err := d.client.Get(&c, customerSql, id)
-	//err := row.Scan(&c.Id, &c.Name, &c.City, &c.Zipcode, &c.DateOfBirth, &c.Status)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, errs.NewNotFoundError("customer not found")
